@@ -10,7 +10,7 @@ export const GlobalStyle = createGlobalStyle`
   html, body {
     width: 100%;
     min-height: 100vh;
-    background-color: ${({ theme }) => theme.colors.background};
+    background-color: transparent;
     color: ${({ theme }) => theme.colors.text};
     font-family: ${({ theme }) => theme.colors.body};
     overflow-x: hidden;

@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import Lenis from 'lenis';
 
 import TimelineContainer from './components/TimelineContainer';
+import Background3D from './components/Background3D';
+import CustomCursor from './components/CustomCursor';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,37 +15,98 @@ const AppWrapper = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 4vw;
+  position: relative;
+  overflow-x: hidden;
 `;
 
 const Intro = styled.section`
-  height: 80vh;
+  height: 90vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  margin-bottom: 20vh;
+  margin: 0 auto 10vh;
+  max-width: 1400px;
+  width: 100%;
+  position: relative;
+  padding: 0 10vw;
+
+  @media (max-width: 768px) {
+    height: 80vh;
+    padding: 0 10vw;
+    margin-bottom: 8vh;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 12vw;
+  }
 
   h1 {
-    font-size: clamp(3rem, 8vw, 8rem);
+    font-size: clamp(2.5rem, 12vw, 9rem);
     text-transform: uppercase;
     line-height: 0.9;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.05em;
     overflow: hidden;
     margin-bottom: 2rem;
+    font-weight: 900;
     
     .line {
       display: block;
-      transform: translateY(100%);
+      transform: translateY(110%);
       opacity: 0;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    }
+
+    @media (max-width: 480px) {
+      font-size: clamp(2rem, 15vw, 4rem);
+      line-height: 1;
     }
   }
 
   p {
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(1rem, 4vw, 1.8rem);
     color: ${({ theme }) => theme.colors.textMuted};
-    max-width: 600px;
-    opacity: 0;
+    max-width: 700px;
+    line-height: 1.5;
+    font-weight: 300;
+
+    @media (max-width: 480px) {
+      font-size: 1.1rem;
+    }
+
+    .word {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+`;
+
+const ScrollIndicator = styled.div`
+  position: absolute;
+  bottom: 5vh;
+  left: 8vw;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0;
+
+  @media (max-width: 768px) {
+    left: 6vw;
+  }
+  
+  .line {
+    width: 40px;
+    height: 1px;
+    background: ${({ theme }) => theme.colors.accent};
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  
+  span {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: ${({ theme }) => theme.colors.textMuted};
   }
 `;
 
@@ -116,7 +180,7 @@ function App() {
       title: 'Cumbre de la Biodiversidad: COP 16',
       date: '2024-10-01',
       description: 'Viaje a Cali a la COP 16 representando a Barranquilla.',
-      extendedInfo: 'Junto a mis compañeros del semillero de investigación, tuve la increíble oportunidad de viajar a Cali para la COP 16. Representar a Barranquilla en la cumbre de la biodiversidad fue una experiencia enormemente enriquecedora, donde pudimos conocer perspectivas y aportes medioambientales de todas partes.',
+      extendedInfo: 'Junto a mis compañeros del semillero de investigación, tuve la increíble oportunidad de viajar a Cali para la COP 16. Representar a Barranquilla en la cumbre de la biodiversidad fue una experiencia enormemente enriquecerora, donde pudimos conocer perspectivas y aportes medioambientales de todas partes.',
       image: '/images/2024-2.png'
     },
     {
@@ -152,34 +216,96 @@ function App() {
     }
   ];
 
+  useEffect(() => {
+    const lenis = new Lenis();
+    
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    
+    requestAnimationFrame(raf);
+
+    return () => lenis.destroy();
+  }, []);
+
+  const splitChars = (text) => {
+    return text.split(' ').map((word, wordIndex, array) => (
+      <span key={wordIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+        {word.split('').map((char, i) => (
+          <span key={i} className="char" style={{ display: 'inline-block' }}>
+            {char}
+          </span>
+        ))}
+        {wordIndex < array.length - 1 && <span className="char" style={{ display: 'inline-block' }}>&nbsp;</span>}
+      </span>
+    ));
+  };
+
+  const splitWords = (text) => {
+    return text.split(' ').map((word, i) => (
+      <span key={i} className="word" style={{ display: 'inline-block', marginRight: '0.25em' }}>
+        {word}
+      </span>
+    ));
+  };
+
   useGSAP(() => {
     const tl = gsap.timeline();
 
     tl.to('.line', {
       y: 0,
       opacity: 1,
-      duration: 1.2,
-      stagger: 0.2,
-      ease: 'power4.out',
-      delay: 0.2
+      duration: 0.1,
+      stagger: 0.1,
+      ease: 'power3.out',
+      delay: 0.5
     })
-      .to('p.intro-text', {
-        opacity: 1,
-        duration: 1,
-        ease: 'power2.out'
-      }, "-=0.5");
+    .fromTo('.char', {
+      y: '100%',
+      opacity: 0
+    }, {
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      stagger: 0.03,
+      ease: 'back.out(1.7)'
+    }, "-=0.2")
+    .to('.word', {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.05,
+      ease: 'power2.out'
+    }, "-=0.6")
+    .to('.scroll-indicator', {
+      opacity: 1,
+      duration: 1
+    }, "-=0.4")
+    .to('.scroll-indicator .line', {
+      scaleX: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, "-=1");
   }, []);
 
   return (
     <AppWrapper>
+      <CustomCursor />
+      <Background3D />
+      
       <Intro>
         <h1>
-          <span className="line">Leonardo Meza's</span>
-          <span className="line">Timeline</span>
+          <span className="line">{splitChars("Leonardo Meza's")}</span>
+          <span className="line">{splitChars("Timeline")}</span>
         </h1>
         <p className="intro-text">
-          El trayecto histórico, los desafíos superados y las pasiones descubiertas que forjaron quien soy hoy.
+          {splitWords("Un trayecto histórico de desafíos, aprendizajes y metas alcanzadas.")}
         </p>
+        <ScrollIndicator className="scroll-indicator">
+          <div className="line" />
+          <span>Scroll to explore</span>
+        </ScrollIndicator>
       </Intro>
 
       <TimelineContainer milestones={milestones} />
@@ -188,3 +314,4 @@ function App() {
 }
 
 export default App;
+
