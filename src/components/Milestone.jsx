@@ -136,19 +136,21 @@ const Milestone = ({ data, index }) => {
     });
 
     tl.fromTo(
-      el.querySelector('.marker'),
+      el.querySelectorAll('.marker'),
       { scale: 0, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.5)' }
+      { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.5)', stagger: 0.1 }
     )
-    .to(el.querySelector('.date span'), {
+    .to(el.querySelectorAll('.date span'), {
       y: 0,
       duration: 0.8,
-      ease: 'power4.out'
+      ease: 'power4.out',
+      stagger: 0.1
     }, "-=0.4")
-    .to(el.querySelector('.title span'), {
+    .to(el.querySelectorAll('.title span'), {
       y: 0,
       duration: 1,
-      ease: 'power4.out'
+      ease: 'power4.out',
+      stagger: 0.1
     }, "-=0.6")
     .to(el.querySelectorAll('.desc, .image-card'), {
       y: 0,
@@ -165,6 +167,36 @@ const Milestone = ({ data, index }) => {
     month: 'short', 
     day: 'numeric' 
   });
+
+  if (data.isDual) {
+    return (
+      <ItemContext ref={containerRef} $isEven={false}>
+        <ContentCard $isEven={false}>
+          <div className="marker" />
+          <span className="date">
+            <span>{new Date(data.left.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+          </span>
+          <h3 className="title">
+            <span>{data.left.title}</span>
+          </h3>
+          {data.left.description && <p className="desc">{data.left.description}</p>}
+          {data.left.extendedInfo && <p className="desc extended">{data.left.extendedInfo}</p>}
+        </ContentCard>
+        
+        <ContentCard $isEven={true}>
+          <div className="marker" />
+          <span className="date">
+            <span>{new Date(data.right.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+          </span>
+          <h3 className="title">
+            <span>{data.right.title}</span>
+          </h3>
+          {data.right.description && <p className="desc">{data.right.description}</p>}
+          {data.right.extendedInfo && <p className="desc extended">{data.right.extendedInfo}</p>}
+        </ContentCard>
+      </ItemContext>
+    );
+  }
 
   return (
     <ItemContext ref={containerRef} $isEven={isEven}>
