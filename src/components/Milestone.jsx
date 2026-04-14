@@ -70,8 +70,14 @@ const YearBadge = styled.div`
   @media (max-width: 768px) {
     top: 6vh;
     span {
-      font-size: ${props => props.$isLong ? 'clamp(3rem, 15vw, 5rem)' : 'clamp(4rem, 25vw, 8rem)'};
+      font-size: ${props => props.$isLong ? 'clamp(2.5rem, 13vw, 4rem)' : 'clamp(4rem, 25vw, 8rem)'};
       color: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  @media (max-width: 480px) {
+    span {
+      font-size: ${props => props.$isLong ? 'clamp(1.8rem, 11vw, 3rem)' : 'clamp(3rem, 22vw, 5.5rem)'};
     }
   }
 `;
@@ -166,7 +172,7 @@ const ImageBlock = styled.div`
   position: relative;
   overflow: hidden;
   border-radius: 20px;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: ${props => props.$isFirst ? '16 / 9' : '4 / 3'};
   opacity: 0;
   transform: scale(0.9);
   box-shadow: 0 50px 100px rgba(0, 0, 0, 0.7);
@@ -431,7 +437,7 @@ const Milestone = ({ data, index, total }) => {
         </TextBlock>
 
         {hasImage && (
-          <ImageBlock className="image-block">
+          <ImageBlock className="image-block" $isFirst={index === 0}>
             <div className="img-inner">
               <img ref={imgRef} src={data.image} alt={data.title} />
             </div>
